@@ -1,0 +1,84 @@
+---
+
+Laporan Aplikasi Diskon Okta (update)
+Dokumentasi Aplikasi Penghitung Diskon
+
+
+---
+
+1. Deskripsi Singkat
+
+Aplikasi ini adalah kalkulator diskon berbasis web yang dirancang dengan antarmuka yang modern dan bersih menggunakan CSS bawaan (tanpa framework eksternal). Aplikasi ini memungkinkan pengguna memasukkan harga dan persentase diskon, lalu menampilkan hasil perhitungan diskon serta harga akhir setelah potongan. Program juga dilengkapi validasi untuk membatasi diskon maksimal 100% serta fitur formatting angka secara otomatis ke format mata uang Indonesia.
+
+
+---
+
+2. Struktur dan Penjelasan Kode
+
+a. Form Input
+
+<form method="post"> 
+    <input type="text" name="harga" placeholder="Harga awal (Rp)" required oninput="formatRibuan(this)"> 
+    <input type="number" name="diskon" placeholder="Diskon (%)" required min="0" max="100"> 
+    <button type="submit" name="hitung">Hitung</button> 
+</form>
+
+Input harga menggunakan type="text" agar bisa diformat ribuan otomatis.
+
+Input diskon menggunakan type="number" dengan batas minimal 0 dan maksimal 100.
+
+Tombol submit bertuliskan "Hitung" untuk memproses perhitungan.
+
+
+
+---
+
+b. Perhitungan Diskon
+
+<?php 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['hitung'])) { 
+    $harga = str_replace('.', '', $_POST['harga']); 
+    $diskon = $_POST['diskon']; 
+    if ($diskon > 100) { 
+        echo "<div class='error'>Diskon tidak boleh lebih dari 100%.</div>"; 
+    } else { 
+        $total = ($diskon / 100) * $harga; 
+        $akhir = $harga - $total; 
+        echo "<div class='result'>Total diskon: Rp " . number_format($total, 0, ',', '.') . 
+             "<br>Harga setelah diskon: Rp " . number_format($akhir, 0, ',', '.') . "</div>"; 
+    } 
+} 
+?>
+
+Penjelasan:
+
+Server mengecek apakah form dikirim via metode POST.
+
+str_replace('.', '', $_POST['harga']) digunakan untuk menghapus titik ribuan dari input harga agar bisa diproses sebagai angka.
+
+Jika diskon > 100, maka ditampilkan pesan kesalahan.
+
+Jika valid, perhitungan dilakukan:
+
+total = (diskon / 100) * harga
+
+akhir = harga - total
+
+
+Hasil ditampilkan menggunakan number_format() untuk format Indonesia (Rp 1.000.000).
+
+
+
+---
+
+c. Fungsi JavaScript untuk Format Ribuan
+
+function formatRibuan(input) { 
+    let value = input.value.replace(/\D/g, ''); 
+    input.value = new Intl.NumberFormat('id-ID').format(value); 
+}
+
+Fungsi ini memformat input harga secara real-time dengan menambahkan titik setiap ribuan, mengikuti standar Indonesia (misalnya: 1200000 menjadi 1.200.000).
+
+
+---
